@@ -8,3 +8,6 @@ NUGET
     Suave (0.29.0)
       FSharp.Core (>= 3.1.2.1)
       FsPickler (>= 1.2.5)
+    Suave.Experimental (0.29.0)
+      FSharp.Core (>= 3.1.2.1)
+      Suave (>= 0.29.0)

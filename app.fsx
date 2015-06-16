@@ -78,7 +78,10 @@ module App =
     let html container =
         let ctx = Db.getContext ()
         let result cartItems user =
-            OK (View.index (View.partNav cartItems) (View.partUser user) container)
+            OK (View.index (View.partNav cartItems)
+                           (View.partUser user)
+                           (View.partGenres (Db.getGenres ctx))
+                           container)
             >>= Writers.setMimeType "text/html; charset=utf-8"
         session (function
             | UserLoggedOn { Username = username } ->
@@ -129,6 +132,11 @@ module App =
             | UserLoggedOn { Role = "admin" } -> f_success
             | UserLoggedOn _ -> FORBIDDEN "Only for admin"
             | _ -> UNAUTHORIZED "Not logged in"))
+
+    let home =
+        let ctx = Db.getContext ()
+        let bestsellers = Db.getBestSellers ctx
+        View.home bestsellers |> html
 
     let overview =
         warbler <| fun _ ->
@@ -258,9 +266,21 @@ module App =
                 | None ->
                     never)
 
+    let checkout =
+        session (function
+            | NoSession | CartIdOnly _ -> never
+            | UserLoggedOn { Username = username } ->
+                choose [
+                    GET >>= (View.checkout |> html)
+                    POST >>= warbler (fun _ ->
+                        let ctx = Db.getContext ()
+                        Db.placeOrder username ctx
+                        View.checkoutComplete |> html)
+                ])
+
     let webPart =
         choose [
-            path Path.home >>= html View.home
+            path Path.home >>= home
             path Path.Store.overview >>= overview
             path Path.Store.browse >>= browse
             pathScan Path.Store.details details
@@ -276,6 +296,7 @@ module App =
             path Path.Cart.overview >>= cart
             pathScan Path.Cart.addAlbum addToCart
             pathScan Path.Cart.removeAlbum removeFromCart
+            path Path.Cart.checkout >>= loggedOn checkout
 
             path Path.Account.register >>= register
 

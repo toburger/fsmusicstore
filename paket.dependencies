@@ -1,5 +1,6 @@
 source https://nuget.org/api/v2
 
 nuget FSharp.Compiler.Service
+nuget Suave.Experimental
 nuget fake
 nuget suave

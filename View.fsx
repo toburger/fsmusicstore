@@ -87,7 +87,7 @@ let partUser (user : string option) =
             yield aHref Path.Account.logon (text "Log on")
     ]
 
-let index partNav partUser container =
+let index partNav partUser partGenres container =
     html [
         head [
             title "Suave Music Store"
@@ -99,6 +99,7 @@ let index partNav partUser container =
                 partNav
                 partUser
             ]
+            partGenres
             divId "main" container
             divId "footer" [
                 text "build with "
@@ -110,7 +111,17 @@ let index partNav partUser container =
     ]
     |> xmlToString
 
-let home = [ h2 "Home" ]
+let home (bestSellers : Db.BestSeller list) = [
+    imgSrc "/home-showcase.png"
+    h2 "Fresh off the grill"
+    ulAttr [ "id", "album-list" ] [
+        for album in bestSellers ->
+            li (aHref (sprintf Path.Store.details album.AlbumId)
+                      (flatten [ imgSrc album.AlbumArtUrl
+                                 span (text album.Title) ]))
+    ]
+]
+
 let store genres = [
     h2 "Store"
     p [
@@ -122,10 +133,14 @@ let store genres = [
     ]
 ]
 let browse genre (albums : Db.Album list) = [
-    h2 (sprintf "Genre: %s" genre)
-    ul [
-        for a in albums ->
-            li (aHref (sprintf Path.Store.details a.AlbumId) (text a.Title))
+    divClass "genre" [
+        h2 (sprintf "Genre: %s" genre)
+        ulAttr [ "id", "album-list" ] [
+            for album in albums ->
+                li (aHref (sprintf Path.Store.details album.AlbumId)
+                          (flatten [ imgSrc album.AlbumArtUrl
+                                     span (text album.Title) ]))
+        ]
     ]
 ]
 let details (album : Db.AlbumDetails) = [
@@ -269,6 +284,9 @@ let emptyCart = [
 
 let nonEmptyCart (carts : Db.CartDetails list) = [
     h2 "Review your cart:"
+    pAttr [ "class", "button" ] [
+        aHref Path.Cart.checkout (text "Checkout >>")
+    ]
     divId "update-message" [ text " " ]
     table [
         yield tr [
@@ -326,3 +344,42 @@ let register msg = [
                           Xml = input (fun f -> <@ f.ConfirmPassword @>) [] } ] } ]
           SubmitText = "Register" }
 ]
+
+let checkout = [
+    h2 "Address And Payment"
+    renderForm
+        { Form = Form.checkout
+          Fieldsets =
+            [ { Legend = "Shipping Information"
+                Fields =
+                    [ { Label = "First Name"
+                        Xml = input (fun f -> <@ f.FirstName @>) [] }
+                      { Label = "Last Name"
+                        Xml = input (fun f -> <@ f.LastName @>) [] }
+                      { Label = "Address"
+                        Xml = input (fun f -> <@ f.Address @>) [] } ] }
+              { Legend = "Payment"
+                Fields =
+                    [ { Label = "Promo Code"
+                        Xml = input (fun f -> <@ f.PromoCode @>) [] } ] } ]
+          SubmitText = "Submit Order" }
+]
+
+let checkoutComplete = [
+    h2 "Checkout Complete"
+    p [
+        text "Thanks for your order!"
+    ]
+    p [
+        text "How about shopping for some more music in our "
+        aHref Path.home (text "store")
+        text "?"
+    ]
+]
+
+let partGenres (genres : Db.Genre list) =
+    ulAttr [ "id", "categories" ] [
+        for genre in genres ->
+            li (aHref (Path.Store.browse |> Path.withParam (Path.Store.browseKey, genre.Name))
+               (text genre.Name))
+    ]

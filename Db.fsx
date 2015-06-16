@@ -14,6 +14,7 @@ type AlbumDetails = DbContext.``[dbo].[AlbumDetails]Entity``
 type User = DbContext.``[dbo].[Users]Entity``
 type Cart = DbContext.``[dbo].[Carts]Entity``
 type CartDetails = DbContext.``[dbo].[CartDetails]Entity``
+type BestSeller = DbContext.``[dbo].[BestSellers]Entity``
 
 let firstOrNone s = s |> Seq.tryFind (fun _ -> true)
 
@@ -121,5 +122,20 @@ let upgradeCarts (cartId : string, username : string) (ctx : DbContext) =
         | None ->
             cart.CartId <- username
     ctx.SubmitUpdates()
+
+let placeOrder (username : string) (ctx : DbContext) =
+    let carts = getCartDetails username ctx
+    let total = carts |> List.sumBy (fun c -> decimal c.Count * c.Price)
+    let order = ctx.``[dbo].[Orders]``.Create(DateTime.UtcNow, total)
+    order.Username <- username
+    ctx.SubmitUpdates()
+    for cart in carts do
+        let orderDetails = ctx.``[dbo].[OrderDetails]``.Create(cart.AlbumId, order.OrderId, cart.Count, cart.Price)
+        getCart cart.CartId cart.AlbumId ctx
+        |> Option.iter (fun cart -> cart.Delete())
+    ctx.SubmitUpdates()
+
+let getBestSellers (ctx : DbContext) : BestSeller list =
+    ctx.``[dbo].[BestSellers]`` |> Seq.toList
 
 let getContext () = Sql.GetDataContext()
