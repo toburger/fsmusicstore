@@ -1,6 +1,6 @@
-﻿#r @"D:\NugetLibs\FsPickler.1.2.5\lib\net45\FsPickler.dll"
-#r @"D:\NugetLibs\Suave.0.29.0\lib\net40\Suave.dll"
-#r @"D:\NugetLibs\Suave.Experimental.0.29.0\lib\net40\Suave.Experimental.dll"
+﻿#r @"packages\FsPickler\lib\net45\FsPickler.dll"
+#r @"packages\Suave\lib\net40\Suave.dll"
+#r @"packages\Suave.Experimental\lib\net40\Suave.Experimental.dll"
 
 open System
 open Suave
@@ -20,7 +20,7 @@ module App =
     open Suave.Http.RequestErrors
     open Suave.Model.Binding
     open Suave.State.CookieStateStore
-    
+
     type UserLoggedOnSession = {
         Username : string
         Role : string
@@ -284,7 +284,7 @@ module App =
             path Path.Store.overview >>= overview
             path Path.Store.browse >>= browse
             pathScan Path.Store.details details
-            
+
             path Path.Account.logon >>= logon
             path Path.Account.logoff >>= reset
 

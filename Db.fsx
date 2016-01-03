@@ -1,8 +1,8 @@
-﻿#r @"D:\NugetLibs\SQLProvider.0.0.9-alpha\lib\net40\FSharp.Data.SqlProvider.dll"
+﻿#r @"packages\SqlProvider\lib\net40\FSharp.Data.SqlProvider.dll"
 
 open System
 open FSharp.Data.Sql
-    
+
 type Sql =
     SqlDataProvider<"Data Source=(localdb)\\v11.0;Initial Catalog=SuaveMusicStore;Integrated Security=True;Pooling=False",
                     DatabaseVendor = Common.DatabaseProviderTypes.MSSQLSERVER>

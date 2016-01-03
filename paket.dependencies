@@ -1,6 +1,7 @@
 source https://nuget.org/api/v2
 
 nuget FSharp.Compiler.Service
+nuget SqlProvider 0.0.9-alpha
 nuget Suave.Experimental
 nuget fake
 nuget suave

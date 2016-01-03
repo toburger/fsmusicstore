@@ -1,6 +1,6 @@
-﻿#r @"D:\NugetLibs\FsPickler.1.2.5\lib\net45\FsPickler.dll"
-#r @"D:\NugetLibs\Suave.0.29.0\lib\net40\Suave.dll"
-#r @"D:\NugetLibs\Suave.Experimental.0.29.0\lib\net40\Suave.Experimental.dll"
+﻿#r @"packages\FsPickler\lib\net45\FsPickler.dll"
+#r @"packages\Suave\lib\net40\Suave.dll"
+#r @"packages\Suave.Experimental\lib\net40\Suave.Experimental.dll"
 
 open Suave.Form
 open System.Net.Mail
